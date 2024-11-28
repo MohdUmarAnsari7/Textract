@@ -7,18 +7,27 @@ from keras import layers
 # Configure Tesseract path if required
 pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
-# Function to preprocess image
-def preprocess_image(image_path):
+# # Function to preprocess image
+# def preprocess_image(image_path):
+#     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+#     # Resize the image to a fixed size
+#     image = cv2.resize(image, (128, 32))
+#     # Normalize the pixel values
+#     image = image / 255.0
+#     image = np.expand_dims(image, axis=-1)  # Add channel dimension
+#     return np.expand_dims(image, axis=0)  # Add batch dimension
+
+# Build CRNN model
+def recogHandwritten(input_shape, num_classes, image_path):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     # Resize the image to a fixed size
     image = cv2.resize(image, (128, 32))
+    
     # Normalize the pixel values
     image = image / 255.0
     image = np.expand_dims(image, axis=-1)  # Add channel dimension
-    return np.expand_dims(image, axis=0)  # Add batch dimension
-
-# Build CRNN model
-def build_crnn_model(input_shape, num_classes):
+    # return np.expand_dims(image, axis=0)  # Add batch dimension
+    
     inputs = layers.Input(shape=input_shape)
 
     # Convolutional Layers
@@ -36,7 +45,6 @@ def build_crnn_model(input_shape, num_classes):
 
     # Output Layer
     outputs = layers.Dense(num_classes, activation="softmax")(x)
-
     return Model(inputs, outputs)
 
 # OCR using Tesseract
@@ -49,14 +57,10 @@ def recognize_text_tesseract(image_path):
 if __name__ == "__main__":
     # Path to handwritten text image
     image_path = "handwritten.jpeg"
-
-    # Preprocess the image
-    preprocessed_image = preprocess_image(image_path)
-
     # Create and summarize the CRNN model
     input_shape = (32, 128, 1)  # Image dimensions (height, width, channels)
     num_classes = 80  # Adjust based on your dataset's vocabulary
-    crnn_model = build_crnn_model(input_shape, num_classes)
+    crnn_model = recogHandwritten(input_shape, num_classes,image_path)
     crnn_model.summary()
 
     # Recognize text using Tesseract OCR

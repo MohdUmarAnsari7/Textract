@@ -47,21 +47,30 @@ function sendFileToBackend(file) {
     const formData = new FormData();
     formData.append("file", file);
 
-    fetch("http://127.0.0.1:5000/upload", {
+    fetch("http://127.0.0.1:5000/uploads", { // Corrected port and endpoint
         method: "POST",
         body: formData,
     })
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json(); // Parse JSON response
+        })
         .then((data) => {
             console.log("OCR Output:", data);
 
+            // Use the image preview URL returned from the server
             if (data.imagePreview) {
-                const imagePreview = document.getElementById("filePreview");
-                imagePreview.innerHTML = `<img src="${data.imagePreview}" alt="Processed Image Preview">`;
+                const filePreview = document.getElementById("filePreview");
+                filePreview.innerHTML = `<img src="${data.imagePreview}" alt="Processed Image Preview">`;
             }
 
+            // Populate the table with extracted text
             if (data.extractedText) {
                 populateOCRTable(data.extractedText);
+            } else {
+                alert("No text was extracted from the image.");
             }
 
             alert("OCR Process Completed Successfully");
@@ -70,6 +79,8 @@ function sendFileToBackend(file) {
             console.error("Error:", error);
         });
 }
+
+
 
 // Function to populate OCR output table
 function populateOCRTable(ocrText) {

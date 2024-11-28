@@ -8,7 +8,7 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route('/upload', methods=['POST'])
+@app.route('/uploads', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
@@ -25,9 +25,9 @@ def upload_file():
     # Process the image for OCR and preview
     img = cv2.imread(filepath)
     bw_image = bwImage(img)
-    bw_file = cv2.imwrite("bw_Image.jpg", bw_image)  # Save the processed image
+    cv2.imwrite("bw_Image.jpg", bw_image)  # Save the processed image
     no_Noise = noiseRemoval(bw_image)
-    noNoise_file = cv2.imwrite("no_Noise.jpg", no_Noise)
+    cv2.imwrite("no_Noise.jpg", no_Noise)
     ocrText = ocr(no_Noise)
 
     # Save OCR result to a text file
